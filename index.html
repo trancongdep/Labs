@@ -3,17 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABS-Web v1.5 | Hệ thống Kiểm tra TSKT</title>
+    <title>LABS-Web v1.6 | Kiểm tra đáp án Học viên</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #e67e22;
-            --secondary: #2c3e50;
-            --bg: #f8f9fa;
-            --white: #ffffff;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --info: #3498db;
+            --primary: #e67e22; --secondary: #2c3e50; --bg: #f4f7f6;
+            --success: #27ae60; --danger: #e74c3c; --info: #3498db;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
@@ -24,7 +19,7 @@
             width: 260px; background-color: var(--secondary); color: white;
             display: flex; flex-direction: column; transition: 0.3s; z-index: 1001;
         }
-        .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header { padding: 20px; text-align: center; background: rgba(0,0,0,0.2); }
         .sidebar-menu { list-style: none; flex: 1; overflow-y: auto; }
         .sidebar-menu li {
             padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px;
@@ -36,28 +31,30 @@
         /* MAIN */
         .wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         header {
-            height: 60px; background: var(--white); display: flex; align-items: center;
+            height: 60px; background: white; display: flex; align-items: center;
             justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
 
         main.content { flex: 1; padding: 20px; overflow-y: auto; }
-        .container { max-width: 850px; margin: 0 auto; background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
 
-        /* FORM */
+        /* UI */
         .step-box { background: #fdfdfd; border: 1px solid #eee; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         h4 { margin-bottom: 15px; color: var(--secondary); border-left: 4px solid var(--primary); padding-left: 10px; }
         label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #555; }
+        
         input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+        .input-result { border: 2px solid var(--info); background: #f0f8ff; font-weight: bold; }
+        
         .btn-action { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
         
-        /* FEEDBACK UI */
-        .feedback { padding: 15px; border-radius: 8px; margin-top: 20px; display: none; line-height: 1.6; }
-        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .feedback.wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .std-ref { background: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 0.9rem; }
+        .feedback { padding: 15px; border-radius: 8px; margin-top: 20px; display: none; line-height: 1.6; border: 1px solid transparent; }
+        .correct { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .wrong { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
         
-        .formula { font-family: monospace; font-weight: bold; background: #eee; padding: 2px 4px; }
+        .std-val { font-weight: bold; color: var(--info); }
+        .math { font-family: monospace; font-weight: bold; background: #eee; padding: 2px 4px; }
 
         @media (max-width: 992px) {
             nav.sidebar { position: absolute; left: -100%; height: 100%; }
@@ -73,27 +70,31 @@
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header"><h3>LABS-WEB v1.5</h3></div>
+        <div class="sidebar-header"><h3>LABS TEST v1.6</h3></div>
         <ul class="sidebar-menu">
-            <li onclick="loadPage('home')" class="active" id="m-home"><i class="fa-solid fa-home"></i> <span>Trang chủ</span></li>
+            <li onclick="loadPage('home')" class="active" id="m-home"><i class="fa-solid fa-house"></i> <span>Trang chủ</span></li>
             <li onclick="loadPage('load')" id="m-load"><i class="fa-solid fa-weight-scale"></i> <span>Bài 1: Tải trọng sàn</span></li>
             <li onclick="loadPage('occupancy')" id="m-occupancy"><i class="fa-solid fa-users-gear"></i> <span>Bài 2: Sức chứa người</span></li>
             <li onclick="loadPage('escape')" id="m-escape"><i class="fa-solid fa-person-running"></i> <span>Bài 3: Thoát nạn</span></li>
-            <li onclick="loadPage('cap')" id="m-cap"><i class="fa-solid fa-camera-retro"></i> <span>Bài 4: Kiểm tra & CAP</span></li>
         </ul>
     </nav>
 
     <div class="wrapper">
         <header>
             <div class="menu-toggle" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></div>
-            <div style="font-weight: bold; color: var(--secondary);">HỆ THỐNG KIỂM TRA TSKT CHUẨN</div>
-            <div id="user-role"><i class="fa-solid fa-user-check"></i> Chế độ: Thực hành</div>
+            <div style="font-weight: bold; color: var(--secondary);">KIỂM TRA KẾ QUẢ THỰC HÀNH</div>
+            <div style="font-size: 0.8rem; color: #777;">Học viên tự tính toán trước</div>
         </header>
 
         <main class="content">
             <div class="container" id="main-view">
-                <h2>Bắt đầu bài học</h2>
-                <p>Hệ thống sẽ đối chiếu thông số bạn nhập với tiêu chuẩn LABS để chấm điểm.</p>
+                <h2>Hướng dẫn Làm bài</h2>
+                <ol style="margin: 20px; line-height: 2;">
+                    <li>Chọn nội dung thực hành từ Menu.</li>
+                    <li>Tra cứu tài liệu LABS để lấy <b>Thông số kỹ thuật (TSKT)</b>.</li>
+                    <li>Sử dụng máy tính tay để tính <b>Kết quả cuối cùng</b>.</li>
+                    <li>Nhập tất cả vào form và bấm <b>"KIỂM TRA KẾ QUẢ"</b>.</li>
+                </ol>
             </div>
         </main>
     </div>
@@ -108,70 +109,68 @@
             'load': `
                 <h3>Bài 1: Tải trọng sàn</h3>
                 <div class="step-box">
-                    <label>Loại vật liệu khảo sát:</label>
-                    <select id="matSelect">
-                        <option value="3.5">Vải chưa xử lý / Cuộn vải</option>
+                    <h4>1. Nhập thông số tra cứu & đo đạc</h4>
+                    <label>Loại vật liệu:</label>
+                    <select id="std_rho">
+                        <option value="3.5">Vải chưa xử lý / Vải cuộn</option>
                         <option value="2.0">Thành phẩm đóng gói</option>
-                        <option value="1.25">Giấy carton / Thùng rỗng</option>
-                        <option value="10.0">Nước (Bồn Gazi)</option>
                     </select>
-                    <label>Nhập Trọng lượng riêng ρ (kN/m³):</label>
-                    <input type="number" id="hv_rho" placeholder="Bạn tra cứu được bao nhiêu?">
-                    <label>Nhập Chiều cao h (mét):</label>
-                    <input type="number" id="hv_h" placeholder="Nhập số đo thực tế">
-                    <button class="btn-action" onclick="checkEx1()">KIỂM TRA ĐÚNG/SAI</button>
+                    <label>Trọng lượng riêng ρ bạn tra được (kN/m³):</label>
+                    <input type="number" id="hv_rho" step="0.1">
+                    <label>Chiều cao h đo thực tế (mét):</label>
+                    <input type="number" id="hv_h" step="0.1">
+                    
+                    <h4>2. Nhập kết quả bạn tự tính</h4>
+                    <label>Tải trọng sàn tính toán (kN/m²):</label>
+                    <input type="number" id="hv_res" class="input-result" step="0.01" placeholder="Nhập đáp án của bạn">
+                    
+                    <button class="btn-action" onclick="checkEx1()">KIỂM TRA KẾ QUẢ</button>
                 </div>
-                <div id="fbEx1" class="feedback"></div>
+                <div id="fb" class="feedback"></div>
             `,
             'occupancy': `
                 <h3>Bài 2: Sức chứa người</h3>
                 <div class="step-box">
-                    <label>Khu vực khảo sát:</label>
-                    <select id="occType">
-                        <option value="10">Xưởng sản xuất may mặc</option>
-                        <option value="30">Kho hàng hóa</option>
-                        <option value="0.65">Phòng họp (không ghế cố định)</option>
+                    <h4>1. Thông số mặt bằng</h4>
+                    <label>Khu vực:</label>
+                    <select id="std_f">
+                        <option value="10">Xưởng sản xuất</option>
+                        <option value="30">Kho hàng</option>
                     </select>
-                    <label>Nhập diện tích A (m²):</label>
-                    <input type="number" id="hv_area" placeholder="Nhập diện tích">
-                    <label>Nhập mật độ f (m²/người):</label>
-                    <input type="number" id="hv_f" placeholder="Tra mục 6.4.2 LABS">
-                    <button class="btn-action" onclick="checkEx2()">KIỂM TRA ĐÚNG/SAI</button>
+                    <label>Mật độ f bạn tra được (m²/người):</label>
+                    <input type="number" id="hv_f">
+                    <label>Diện tích A đo được (m²):</label>
+                    <input type="number" id="hv_area">
+                    
+                    <h4>2. Nhập kết quả bạn tự tính</h4>
+                    <label>Sức chứa tối đa (người):</label>
+                    <input type="number" id="hv_res" class="input-result" placeholder="Nhập số người">
+                    
+                    <button class="btn-action" onclick="checkEx2()">KIỂM TRA KẾ QUẢ</button>
                 </div>
-                <div id="fbEx2" class="feedback"></div>
+                <div id="fb" class="feedback"></div>
             `,
             'escape': `
                 <h3>Bài 3: Kích thước thoát nạn</h3>
                 <div class="step-box">
-                    <label>Cấu phần thoát nạn:</label>
-                    <select id="escSelect">
+                    <h4>1. Thông số thoát nạn</h4>
+                    <label>Cấu phần:</label>
+                    <select id="std_k">
                         <option value="5">Cửa / Hành lang</option>
                         <option value="7.6">Cầu thang</option>
                     </select>
-                    <label>Nhập số người P:</label>
-                    <input type="number" id="hv_p" placeholder="Số người cư ngụ">
-                    <label>Nhập hệ số chiều rộng k (mm/người):</label>
-                    <input type="number" id="hv_k" placeholder="Tra bảng 6.5">
-                    <button class="btn-action" onclick="checkEx3()">KIỂM TRA ĐÚNG/SAI</button>
+                    <label>Hệ số k bạn tra được (mm/người):</label>
+                    <input type="number" id="hv_k" step="0.1">
+                    <label>Số người P thực tế:</label>
+                    <input type="number" id="hv_p">
+                    
+                    <h4>2. Nhập kết quả bạn tự tính</h4>
+                    <label>Chiều rộng tối thiểu cần thiết (mm):</label>
+                    <input type="number" id="hv_res" class="input-result" placeholder="Lưu ý quy tắc Max(calc, min)">
+                    
+                    <button class="btn-action" onclick="checkEx3()">KIỂM TRA KẾ QUẢ</button>
                 </div>
-                <div id="fbEx3" class="feedback"></div>
-            `,
-            'cap': `
-                <h3>Bài 4: Kiểm tra & CAP</h3>
-                <div class="step-box">
-                    <label>Loại lỗi phát hiện:</label>
-                    <select id="prioSelect">
-                        <option value="1">Ưu tiên 1 (Nghiêm trọng)</option>
-                        <option value="2">Ưu tiên 2 (Trung bình)</option>
-                        <option value="3">Ưu tiên 3 (Thấp)</option>
-                    </select>
-                    <label>Thời gian khắc phục nhỏ nhất (ngày):</label>
-                    <input type="number" id="hv_tmin">
-                    <label>Thời gian khắc phục lớn nhất (ngày):</label>
-                    <input type="number" id="hv_tmax">
-                    <button class="btn-action" onclick="checkEx4()">KIỂM TRA ĐÚNG/SAI</button>
-                </div>
-                <div id="fbEx4" class="feedback"></div>
+                <div id="fb" class="feedback"></div>
             `
         };
 
@@ -182,78 +181,65 @@
             if(window.innerWidth <= 992) toggleMenu();
         }
 
-        // --- HÀM KIỂM TRA THÔNG MINH ---
+        function showFB(isCorrect, msg) {
+            const fb = document.getElementById('fb');
+            fb.style.display = "block";
+            fb.className = "feedback " + (isCorrect ? "correct" : "wrong");
+            fb.innerHTML = msg;
+        }
+
+        // --- LOGIC KIỂM TRA ---
 
         function checkEx1() {
-            const stdRho = parseFloat(document.getElementById('matSelect').value);
-            const hvRho = parseFloat(document.getElementById('hv_rho').value);
-            const h = parseFloat(document.getElementById('hv_h').value);
-            const fb = document.getElementById('fbEx1');
-            fb.style.display = "block";
+            const s_rho = parseFloat(document.getElementById('std_rho').value);
+            const h_rho = parseFloat(document.getElementById('hv_rho').value);
+            const h_h = parseFloat(document.getElementById('hv_h').value);
+            const h_res = parseFloat(document.getElementById('hv_res').value);
+            
+            const trueRes = parseFloat((s_rho * h_h).toFixed(2));
 
-            if (hvRho === stdRho) {
-                fb.className = "feedback correct";
-                const w = (stdRho * h).toFixed(2);
-                fb.innerHTML = `<b>CHÍNH XÁC!</b> Bạn đã tra đúng TSKT trọng lượng riêng là ${stdRho} kN/m³.<br>Kết quả tải trọng sàn: <span class="formula">w = ${stdRho} x ${h} = ${w} kN/m²</span>`;
+            if (h_rho !== s_rho) {
+                showFB(false, `<b>SAI TSKT:</b> Trọng lượng riêng vật liệu không đúng. LABS yêu cầu <span class="std-val">${s_rho} kN/m³</span>.`);
+            } else if (h_res !== trueRes) {
+                showFB(false, `<b>SAI TÍNH TOÁN:</b> TSKT đúng nhưng kết quả nhân chia của bạn bị sai.<br>Dẫn giải: <span class="math">${s_rho} x ${h_h} = ${trueRes}</span>.`);
             } else {
-                fb.className = "feedback wrong";
-                fb.innerHTML = `<b>SAI RỒI!</b> Trọng lượng riêng bạn nhập (${hvRho}) không khớp với tiêu chuẩn LABS cho loại vật liệu này.<br><div class="std-ref">TSKT yêu cầu: ρ = ${stdRho} kN/m³</div>`;
+                showFB(true, `<b>TUYỆT VỜI!</b> Bạn đã tra đúng TSKT và tính toán chính xác.<br>Kết quả: <span class="math">${trueRes} kN/m²</span>.`);
             }
         }
 
         function checkEx2() {
-            const stdF = parseFloat(document.getElementById('occType').value);
-            const hvF = parseFloat(document.getElementById('hv_f').value);
-            const A = parseFloat(document.getElementById('hv_area').value);
-            const fb = document.getElementById('fbEx2');
-            fb.style.display = "block";
+            const s_f = parseFloat(document.getElementById('std_f').value);
+            const h_f = parseFloat(document.getElementById('hv_f').value);
+            const h_a = parseFloat(document.getElementById('hv_area').value);
+            const h_res = parseInt(document.getElementById('hv_res').value);
+            
+            const trueRes = Math.floor(h_a / s_f);
 
-            if (hvF === stdF) {
-                fb.className = "feedback correct";
-                const N = Math.floor(A / stdF);
-                fb.innerHTML = `<b>CHÍNH XÁC!</b> Mật độ ${stdF} m²/người là con số chuẩn LABS.<br>Sức chứa: <span class="formula">N = ${A} / ${stdF} = ${N} người</span>`;
+            if (h_f !== s_f) {
+                showFB(false, `<b>SAI TSKT:</b> Mật độ người cư ngụ sai. Mục 6.4.2 LABS quy định là <span class="std-val">${s_f} m²/người</span>.`);
+            } else if (h_res !== trueRes) {
+                showFB(false, `<b>SAI TÍNH TOÁN:</b> Kết quả sức chứa phải là số nguyên (làm tròn xuống).<br>Đáp án đúng: <span class="math">floor(${h_a} / ${s_f}) = ${trueRes}</span>.`);
             } else {
-                fb.className = "feedback wrong";
-                fb.innerHTML = `<b>CHƯA ĐÚNG!</b> Mật độ người bạn nhập chưa chính xác.<br><div class="std-ref">TSKT yêu cầu theo mục 6.4.2: f = ${stdF} m²/người</div>`;
+                showFB(true, `<b>CHÍNH XÁC!</b> Bạn đã nắm vững cách tính sức chứa.`);
             }
         }
 
         function checkEx3() {
-            const stdK = parseFloat(document.getElementById('escSelect').value);
-            const hvK = parseFloat(document.getElementById('hv_k').value);
-            const P = parseFloat(document.getElementById('hv_p').value);
-            const fb = document.getElementById('fbEx3');
-            fb.style.display = "block";
+            const s_k = parseFloat(document.getElementById('std_k').value);
+            const h_k = parseFloat(document.getElementById('hv_k').value);
+            const h_p = parseFloat(document.getElementById('hv_p').value);
+            const h_res = parseFloat(document.getElementById('hv_res').value);
+            
+            const calcW = h_p * s_k;
+            const minW = (s_k === 7.6) ? 915 : 810;
+            const trueRes = Math.max(calcW, minW);
 
-            if (hvK === stdK) {
-                fb.className = "feedback correct";
-                const calcW = P * stdK;
-                const minW = (stdK === 7.6) ? 915 : 810;
-                fb.innerHTML = `<b>CHÍNH XÁC!</b> Hệ số ${stdK} mm/người là chuẩn.<br>Chiều rộng tính toán: ${calcW}mm. Chiều rộng tối thiểu LABS: ${minW}mm.<br>Kết quả: <span class="formula">Max(${calcW}, ${minW}) = ${Math.max(calcW, minW)} mm</span>`;
+            if (h_k !== s_k) {
+                showFB(false, `<b>SAI HỆ SỐ:</b> Hệ số thoát nạn sai. Tra lại bảng 6.5: <span class="std-val">${s_k} mm/người</span>.`);
+            } else if (h_res !== trueRes) {
+                showFB(false, `<b>SAI KẾT QUẢ:</b> Lưu ý chiều rộng tối thiểu LABS là ${minW}mm.<br>Tính toán: ${calcW}mm. Bạn phải chọn số lớn nhất giữa tính toán và quy định tối thiểu.`);
             } else {
-                fb.className = "feedback wrong";
-                fb.innerHTML = `<b>SAI HỆ SỐ!</b> Bạn cần tra lại bảng 6.5 để tìm hệ số thoát nạn đúng.<br><div class="std-ref">TSKT yêu cầu: k = ${stdK} mm/người</div>`;
-            }
-        }
-
-        function checkEx4() {
-            const prio = document.getElementById('prioSelect').value;
-            const tMin = parseInt(document.getElementById('hv_tmin').value);
-            const tMax = parseInt(document.getElementById('hv_tmax').value);
-            const fb = document.getElementById('fbEx4');
-            fb.style.display = "block";
-
-            let stdMin, stdMax, note;
-            if(prio === "1") { stdMin = 2; stdMax = 3; note = "Lỗi nghiêm trọng cần xử lý ngay."; }
-            else if(prio === "2") { stdMin = 14; stdMax = 42; note = "Thời hạn từ 2 đến 6 tuần tùy loại lỗi."; }
-            else { stdMin = 28; stdMax = 180; note = "Thời hạn dài hạn cho bảo trì."; }
-
-            if (tMin >= stdMin && tMax <= stdMax) {
-                fb.className = "feedback correct";
-                fb.innerHTML = `<b>ĐÚNG QUY ĐỊNH!</b> Thời gian bạn nhập nằm trong khung cho phép của LABS.<br><i>Ghi chú: ${note}</i>`;
-            } else {
-                fb.className = "feedback wrong";
-                fb.innerHTML = `<b>SAI THỜI HẠN!</b> Khung thời gian khắc phục cho Ưu tiên ${prio} không đúng quy định LABS.<br><div class="std-ref">TSKT chuẩn: Từ ${stdMin} đến ${stdMax} ngày.</div>`;
+                showFB(true, `<b>XUẤT SẮC!</b> Bạn đã áp dụng đúng quy tắc <span class="math">Max(W_{calc}, W_{min})</span>.`);
             }
         }
     </script>
