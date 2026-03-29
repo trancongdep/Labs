@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABS-Web v1.2 | Tính toán & Dẫn giải</title>
+    <title>LABS-Web v1.3 | Hệ thống Đào tạo Hoàn chỉnh</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -12,12 +12,12 @@
             --sidebar-width: 280px;
             --header-height: 60px;
             --bg-light: #f1f3f5;
-            --success-color: #27ae60;
-            --danger-color: #c0392b;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --warning: #f39c12;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-
         body { background-color: var(--bg-light); display: flex; height: 100vh; overflow: hidden; }
 
         /* SIDEBAR */
@@ -25,17 +25,17 @@
             width: var(--sidebar-width); background-color: var(--secondary-color); color: white;
             display: flex; flex-direction: column; transition: 0.3s; z-index: 1001;
         }
-        .sidebar-header { padding: 20px; text-align: center; background: rgba(0,0,0,0.2); }
+        .sidebar-header { padding: 15px; text-align: center; background: rgba(0,0,0,0.2); }
         .sidebar-menu { list-style: none; flex: 1; overflow-y: auto; }
         .sidebar-menu li {
-            padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 15px;
-            border-left: 4px solid transparent; transition: 0.2s;
+            padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+            border-left: 4px solid transparent; transition: 0.2s; font-size: 0.9rem;
         }
         .sidebar-menu li:hover { background: #34495e; }
         .sidebar-menu li.active { background: #1a252f; border-left-color: var(--primary-color); color: var(--primary-color); }
 
         /* MAIN */
-        .wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         header {
             height: var(--header-height); background: white; display: flex; align-items: center;
             justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -46,15 +46,17 @@
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 
         /* UI ELEMENTS */
-        .calculation-box { background: #f8f9fa; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-top: 15px; }
-        .explanation { background: #fffdf0; border-left: 4px solid #f1c40f; padding: 15px; margin-top: 15px; font-size: 0.9rem; line-height: 1.6; }
+        .calculation-box { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .explanation { background: #fffdf0; border-left: 4px solid #f1c40f; padding: 15px; margin-top: 15px; font-size: 0.85rem; line-height: 1.6; }
         .math-block { display: block; text-align: center; margin: 10px 0; font-weight: bold; color: #2980b9; font-size: 1.1rem; }
-        .result-highlight { font-size: 1.2rem; font-weight: bold; color: var(--success-color); border: 2px solid var(--success-color); padding: 10px; display: inline-block; border-radius: 5px; margin-top: 10px; }
+        .result-highlight { font-size: 1.1rem; font-weight: bold; color: var(--success); border: 2px solid var(--success); padding: 8px; display: inline-block; border-radius: 5px; margin-top: 10px; }
         
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
-        button.btn-calc { background: var(--primary-color); color: white; border: none; padding: 15px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; margin-top: 10px; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
+        button.btn-calc { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
         
-        footer { padding: 10px; text-align: center; font-size: 0.75rem; background: white; border-top: 1px solid #eee; color: #666; }
+        .cap-item { padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; }
+
+        footer { padding: 8px; text-align: center; font-size: 0.7rem; background: white; border-top: 1px solid #eee; color: #888; }
 
         @media (max-width: 992px) {
             nav.sidebar { position: absolute; left: -100%; height: 100%; }
@@ -71,43 +73,39 @@
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>LABS WEB</h3>
-            <p style="font-size: 0.7rem; opacity: 0.7;">Hệ Thống Đào Tạo & Thực Hành</p>
+            <h3 style="color: var(--primary-color);">LABS WEB v1.3</h3>
         </div>
         <ul class="sidebar-menu">
             <li onclick="loadPage('home')" class="active" id="m-home"><i class="fa-solid fa-home"></i> <span>Trang chủ</span></li>
-            <li onclick="loadPage('load')" id="m-load"><i class="fa-solid fa-weight-scale"></i> <span>Tính Tải trọng Sàn</span></li>
-            <li onclick="loadPage('occupancy')" id="m-occupancy"><i class="fa-solid fa-users"></i> <span>Tính Sức chứa người</span></li>
-            <li onclick="loadPage('escape')" id="m-escape"><i class="fa-solid fa-door-open"></i> <span>Tính Thoát nạn</span></li>
-            <li onclick="loadPage('thermal')" id="m-thermal"><i class="fa-solid fa-temperature-arrow-up"></i> <span>Cảnh báo Nhiệt độ</span></li>
+            <li onclick="loadPage('load')" id="m-load"><i class="fa-solid fa-weight-scale"></i> <span>Tải trọng Sàn</span></li>
+            <li onclick="loadPage('occupancy')" id="m-occupancy"><i class="fa-solid fa-users"></i> <span>Sức chứa người</span></li>
+            <li onclick="loadPage('escape')" id="m-escape"><i class="fa-solid fa-door-open"></i> <span>Thoát nạn (Dẫn giải)</span></li>
+            <li onclick="loadPage('cap')" id="m-cap"><i class="fa-solid fa-clipboard-list"></i> <span>Kiểm tra CAP</span></li>
+            <li onclick="loadPage('incident')" id="m-incident"><i class="fa-solid fa-magnifying-glass"></i> <span>Điều tra Sự cố (6M)</span></li>
+            <li onclick="loadPage('thermal')" id="m-thermal"><i class="fa-solid fa-temperature-high"></i> <span>Quét nhiệt độ</span></li>
         </ul>
     </nav>
 
     <div class="wrapper">
         <header>
             <div class="menu-toggle" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></div>
-            <div style="font-weight: bold; color: var(--secondary-color);">LABS TRAINING SYSTEM</div>
-            <div style="background: var(--primary-color); color:white; padding:2px 8px; border-radius:10px; font-size:0.7rem;">v1.2</div>
+            <div style="font-weight: bold; color: var(--secondary-color); font-size: 0.9rem;">HỆ THỐNG LABS SUPPORT</div>
+            <div style="background: var(--secondary-color); color:white; padding:2px 8px; border-radius:5px; font-size:0.7rem;">ADMIN PANEL</div>
         </header>
 
         <main class="content">
             <div class="container" id="main-view">
-                <!-- Nội dung trang chủ -->
-                <h2>Chào mừng Giảng viên & Học viên</h2>
-                <p style="margin-top: 10px;">Vui lòng chọn các công cụ tính toán từ Menu để bắt đầu thực hành dẫn giải theo tiêu chuẩn LABS.</p>
-                <div style="margin-top: 20px; border: 1px dashed #ccc; padding: 20px; border-radius: 8px;">
-                    <h4>Lưu ý học tập:</h4>
-                    <ul style="margin-left: 20px; margin-top: 10px; font-size: 0.9rem;">
-                        <li>Mọi kết quả đều cần đi kèm bước dẫn giải.</li>
-                        <li>Đơn vị tính toán tuân thủ hệ đo lường quốc tế (SI).</li>
-                        <li>Tham chiếu trực tiếp các Điều mục trong Tiêu chuẩn LABS.</li>
-                    </ul>
+                <!-- Landing Page -->
+                <h2>Hệ thống LABS WEB v1.3</h2>
+                <p style="margin: 15px 0;">Chào mừng bạn đến với công cụ hỗ trợ đào tạo chuyên sâu. Tất cả dữ liệu tính toán đều dựa trên tiêu chuẩn LABS 2023.</p>
+                <div class="explanation">
+                    <strong>Hướng dẫn:</strong> Chọn menu bên trái. Ứng dụng sẽ hiển thị các bước tính toán và dẫn giải chi tiết cho từng nghiệp vụ an toàn.
                 </div>
             </div>
         </main>
 
         <footer>
-            Bản quyền bài giảng LABS &copy; 2026 | Kiểm soát phiên bản bởi Trần Công Đẹp
+            Developed for LABS Training | Version 1.3 | Coded by AI Assistant
         </footer>
     </div>
 
@@ -118,9 +116,10 @@
         }
 
         const pages = {
-            'home': `<h2>Chào mừng Giảng viên & Học viên</h2><p>Chọn công cụ bên trái.</p>`,
+            'home': `<h2>Hệ thống LABS WEB v1.3</h2><p>Vui lòng chọn chức năng để thực hành.</p>`,
+            
             'load': `
-                <h3><i class="fa-solid fa-weight-scale"></i> Tính toán Tải trọng Sàn thực tế</h3>
+                <h3><i class="fa-solid fa-weight-scale"></i> Tính toán Tải trọng Sàn</h3>
                 <div class="calculation-box">
                     <label>Loại hàng hóa (Tỷ trọng ρ):</label>
                     <select id="rho">
@@ -130,58 +129,88 @@
                         <option value="10.0">Nước - Bồn Gazi (10.0 kN/m³)</option>
                     </select>
                     <label>Chiều cao xếp chồng thực tế (h - mét):</label>
-                    <input type="number" id="height" step="0.1" placeholder="Ví dụ: 1.8">
-                    <button class="btn-calc" onclick="calculateLoad()">BẮT ĐẦU TÍNH TOÁN & DẪN GIẢI</button>
+                    <input type="number" id="height" step="0.1" placeholder="Ví dụ: 2.0">
+                    <button class="btn-calc" onclick="calculateLoad()">TÍNH TOÁN & DẪN GIẢI</button>
                 </div>
-                <div id="resultArea" style="display:none;">
-                    <div class="explanation" id="explText"></div>
-                </div>
+                <div id="resArea" style="display:none;" class="explanation"></div>
             `,
+
             'occupancy': `
-                <h3><i class="fa-solid fa-users"></i> Tính toán Sức chứa người (Occupancy)</h3>
+                <h3><i class="fa-solid fa-users"></i> Sức chứa người (Occupancy)</h3>
                 <div class="calculation-box">
-                    <label>Diện tích thông thủy khu vực (A - m²):</label>
-                    <input type="number" id="area" placeholder="Ví dụ: 500">
+                    <label>Diện tích thông thủy (A - m²):</label>
+                    <input type="number" id="area" placeholder="Nhập diện tích">
                     <label>Lĩnh vực sử dụng (Hệ số f):</label>
                     <select id="factor">
                         <option value="10">Xưởng sản xuất (10 m²/người)</option>
                         <option value="30">Kho hàng (30 m²/người)</option>
                         <option value="0.65">Phòng họp tập trung (0.65 m²/người)</option>
-                        <option value="1.4">Phòng họp ít tập trung (1.4 m²/người)</option>
                     </select>
-                    <button class="btn-calc" onclick="calculateOccupancy()">TÍNH TOÁN SỨC CHỨA</button>
+                    <button class="btn-calc" onclick="calculateOccupancy()">TÍNH SỨC CHỨA</button>
                 </div>
-                <div id="resultAreaOcc" style="display:none;">
-                    <div class="explanation" id="explTextOcc"></div>
-                </div>
+                <div id="resAreaOcc" style="display:none;" class="explanation"></div>
             `,
+
             'escape': `
                 <h3><i class="fa-solid fa-door-open"></i> Kiểm tra Khả năng Thoát nạn</h3>
-                <p style="font-size:0.8rem; color:#666;">Dựa trên số người thực tế để kiểm tra chiều rộng cửa/cầu thang.</p>
                 <div class="calculation-box">
-                    <label>Số người cần thoát nạn (P):</label>
-                    <input type="number" id="ppl" placeholder="Ví dụ: 200">
-                    <label>Cấu phần thoát nạn:</label>
-                    <select id="escapeType">
+                    <label>Số người thực tế tại sàn (P):</label>
+                    <input type="number" id="ppl" placeholder="Số lượng nhân viên">
+                    <label>Loại lối thoát:</label>
+                    <select id="escType">
                         <option value="5">Hành lang/Cửa (5 mm/người)</option>
                         <option value="7.6">Cầu thang (7.6 mm/người)</option>
                     </select>
-                    <button class="btn-calc" onclick="calculateEscape()">KIỂM TRA KÍCH THƯỚC TỐI THIỂU</button>
+                    <button class="btn-calc" onclick="calculateEscape()">TÍNH KÍCH THƯỚC TỐI THIỂU</button>
                 </div>
-                <div id="resultAreaEsc" style="display:none;">
-                    <div class="explanation" id="explTextEsc"></div>
+                <div id="resAreaEsc" style="display:none;" class="explanation"></div>
+            `,
+
+            'cap': `
+                <h3><i class="fa-solid fa-clipboard-list"></i> Kiểm tra & Lập CAP</h3>
+                <p style="font-size:0.8rem;">Phân loại lỗi theo mức độ ưu tiên LABS.</p>
+                <div class="calculation-box">
+                    <label>Chọn lỗi phát hiện:</label>
+                    <select id="capPriority" onchange="updateCapDẫnGiải()">
+                        <option value="1">Ưu tiên 1: Lối thoát bị khóa / Cháy nổ ngay</option>
+                        <option value="2">Ưu tiên 2: Thiếu thiết bị PCCC / Lỗi điện nhẹ</option>
+                        <option value="3">Ưu tiên 3: Bảo trì định kỳ quá hạn</option>
+                    </select>
+                    <textarea placeholder="Mô tả chi tiết lỗi phát hiện..."></textarea>
+                    <button class="btn-calc" style="background:var(--success);">XÁC NHẬN LỖI</button>
+                </div>
+                <div id="resAreaCap" class="explanation">
+                    <strong>Dẫn giải quy định LABS:</strong><br>
+                    Mức độ Ưu tiên 1 yêu cầu khắc phục trong vòng <strong>2-3 ngày</strong> để tránh tai nạn nghiêm trọng.
                 </div>
             `,
-            'thermal': `
-                <h3><i class="fa-solid fa-temperature-arrow-up"></i> Phân tích Cảnh báo Nhiệt độ</h3>
+
+            'incident': `
+                <h3><i class="fa-solid fa-magnifying-glass"></i> Điều tra Sự cố (6M Analysis)</h3>
                 <div class="calculation-box">
-                    <label>Nhiệt độ đo được thực tế (°C):</label>
-                    <input type="number" id="temp" placeholder="Nhập số từ máy đo hồng ngoại">
-                    <button class="btn-calc" onclick="calculateThermal()">PHÂN TÍCH MỨC ĐỘ NGUY HIỂM</button>
+                    <label>Nhận diện nguyên nhân (6M):</label>
+                    <div class="cap-item"><input type="checkbox"> Man (Con người - Thiếu huấn luyện)</div>
+                    <div class="cap-item"><input type="checkbox"> Machine (Máy móc - Chập điện)</div>
+                    <div class="cap-item"><input type="checkbox"> Material (Vật liệu - Hàng hóa dễ cháy)</div>
+                    <div class="cap-item"><input type="checkbox"> Method (Phương pháp - Quy trình sai)</div>
+                    <div class="cap-item"><input type="checkbox"> Measurement (Đo lường - Nhiệt độ cao)</div>
+                    <div class="cap-item"><input type="checkbox"> Mother Nature (Môi trường - Ẩm ướt)</div>
+                    <button class="btn-calc">PHÂN TÍCH NGUYÊN NHÂN GỐC</button>
                 </div>
-                <div id="resultAreaTherm" style="display:none;">
-                    <div class="explanation" id="explTextTherm"></div>
+                <div class="explanation">
+                    <strong>Dẫn giải chuyên môn:</strong><br>
+                    Phương pháp 6M giúp bao quát toàn bộ các yếu tố ảnh hưởng. Nếu có ít nhất 1 câu trả lời "CÓ" cho việc hậu quả có thể nặng hơn, bắt buộc phải lập Ban điều tra sự cố.
                 </div>
+            `,
+
+            'thermal': `
+                <h3><i class="fa-solid fa-temperature-high"></i> Phân tích Nhiệt độ</h3>
+                <div class="calculation-box">
+                    <label>Nhiệt độ (°C):</label>
+                    <input type="number" id="tVal" placeholder="Số liệu từ camera nhiệt">
+                    <button class="btn-calc" onclick="calculateThermal()">KIỂM TRA NGƯỠNG AN TOÀN</button>
+                </div>
+                <div id="resAreaTherm" style="display:none;" class="explanation"></div>
             `
         };
 
@@ -193,102 +222,84 @@
             if(window.innerWidth <= 992) toggleMenu();
         }
 
-        // --- LOGIC TÍNH TOÁN CHI TIẾT ---
+        // --- HÀM LOGIC VỚI DẪN GIẢI ---
 
         function calculateLoad() {
             const rho = parseFloat(document.getElementById('rho').value);
             const h = parseFloat(document.getElementById('height').value);
-            const selectText = document.getElementById('rho').options[document.getElementById('rho').selectedIndex].text;
-            
-            if(!h) { alert("Vui lòng nhập chiều cao!"); return; }
-
-            const load = (rho * h).toFixed(2);
-            const kgLoad = (load * 101.97).toFixed(0); // 1 kN/m2 ≈ 101.97 kg/m2
-
-            document.getElementById('resultArea').style.display = "block";
-            document.getElementById('explText').innerHTML = `
-                <strong>Các bước dẫn giải:</strong><br>
-                1. Xác định tỷ trọng vật liệu (<span class="math">ρ</span>): Bạn đã chọn <strong>${selectText}</strong>.<br>
-                2. Xác định chiều cao xếp chồng (<span class="math">h</span>): <strong>${h} m</strong>.<br>
-                3. Áp dụng công thức tính tải trọng khu vực (<span class="math">w</span>):
-                <div class="math-block">w = h \times \rho</div>
-                4. Thay số: <span class="math">w = ${h} \times ${rho} = ${load} (kN/m²)</span>.<br>
-                5. Quy đổi sang đơn vị khối lượng (hệ số 101.97):
-                <div class="math-block">${load} \times 101.97 \approx ${kgLoad} (kg/m²)</div>
-                <div class="result-highlight">KẾT QUẢ: ${load} kN/m² (~${kgLoad} kg/m²)</div>
-                <p style="margin-top:10px; font-size:0.8rem; color:red;">* Lưu ý: So sánh con số này với "Biểu đồ giới hạn tải trọng" được niêm yết tại xưởng để đảm bảo không vượt ngưỡng an toàn.</p>
+            if(!h) return alert("Nhập chiều cao");
+            const w = (rho * h).toFixed(2);
+            const kg = (w * 101.97).toFixed(0);
+            const res = document.getElementById('resArea');
+            res.style.display = "block";
+            res.innerHTML = `
+                <strong>Dẫn giải chi tiết:</strong><br>
+                1. Công thức: <span style="color:blue">w = h x ρ</span><br>
+                2. Thay số: ${h}m x ${rho}kN/m³ = <strong>${w} kN/m²</strong><br>
+                3. Đổi sang kg: ${w} x 101.97 ≈ <strong>${kg} kg/m²</strong><br>
+                <div class="result-highlight">KẾT QUẢ: ${w} kN/m²</div>
             `;
         }
 
         function calculateOccupancy() {
             const A = parseFloat(document.getElementById('area').value);
             const f = parseFloat(document.getElementById('factor').value);
-            if(!A) { alert("Vui lòng nhập diện tích!"); return; }
-
-            const total = Math.floor(A / f);
-
-            document.getElementById('resultAreaOcc').style.display = "block";
-            document.getElementById('explTextOcc').innerHTML = `
-                <strong>Các bước dẫn giải:</strong><br>
-                1. Xác định diện tích thông thủy khu vực (<span class="math">A</span>): <strong>${A} m²</strong>.<br>
-                2. Xác định hệ số tải trọng người cư ngụ (<span class="math">f</span>) theo tiêu chuẩn LABS: <strong>${f} m²/người</strong>.<br>
-                3. Áp dụng công thức tính sức chứa tối đa (<span class="math">N</span>):
-                <div class="math-block">N = \frac{A}{f}</div>
-                4. Thay số: <span class="math">N = \frac{${A}}{${f}} = ${A/f}</span>.<br>
-                5. Lấy số nguyên (vì con người không thể là số thập phân).
-                <div class="result-highlight">SỨC CHỨA TỐI ĐA: ${total} NGƯỜI</div>
+            if(!A) return alert("Nhập diện tích");
+            const n = Math.floor(A/f);
+            const res = document.getElementById('resAreaOcc');
+            res.style.display = "block";
+            res.innerHTML = `
+                <strong>Dẫn giải chi tiết:</strong><br>
+                1. Công thức: <span style="color:blue">N = A / f</span><br>
+                2. Phân tích: Diện tích ${A}m², hệ số sử dụng ${f}m²/người.<br>
+                3. Tính toán: ${A} / ${f} = ${A/f} -> Làm tròn xuống.<br>
+                <div class="result-highlight">SỨC CHỨA: ${n} NGƯỜI</div>
             `;
         }
 
         function calculateEscape() {
             const P = parseFloat(document.getElementById('ppl').value);
-            const factor = parseFloat(document.getElementById('escapeType').value);
-            if(!P) { alert("Vui lòng nhập số người!"); return; }
-
-            const width = (P * factor);
-            const minStandard = (factor === 7.6) ? 915 : 810; // Tiêu chuẩn LABS tối thiểu cho thang/cửa hiện hữu
-
-            document.getElementById('resultAreaEsc').style.display = "block";
-            document.getElementById('explTextEsc').innerHTML = `
-                <strong>Các bước dẫn giải:</strong><br>
-                1. Tổng số người thoát nạn (<span class="math">P</span>): <strong>${P} người</strong>.<br>
-                2. Hệ số thoát nạn tương ứng: <strong>${factor} mm/người</strong>.<br>
-                3. Tính chiều rộng yêu cầu dựa trên công suất (<span class="math">W_{calc}</span>):
-                <div class="math-block">W_{calc} = P \times \text{Hệ số} = ${P} \times ${factor} = ${width} mm</div>
-                4. So sánh với chiều rộng tối thiểu theo quy định LABS (<span class="math">W_{min}</span>): <strong>${minStandard} mm</strong>.<br>
-                <div class="result-highlight">CHIỀU RỘNG CẦN THIẾT: ${Math.max(width, minStandard)} mm</div>
-                <p style="margin-top:10px;">(Kết quả là con số lớn nhất giữa tính toán thực tế và tiêu chuẩn tối thiểu cố định).</p>
+            const f = parseFloat(document.getElementById('escType').value);
+            if(!P) return alert("Nhập số người");
+            const calcW = P * f;
+            const minW = (f === 7.6) ? 915 : 810;
+            const final = Math.max(calcW, minW);
+            const res = document.getElementById('resAreaEsc');
+            res.style.display = "block";
+            res.innerHTML = `
+                <strong>Dẫn giải chi tiết:</strong><br>
+                1. Tính theo công suất: ${P} người x ${f} mm/người = <strong>${calcW} mm</strong>.<br>
+                2. Quy định LABS tối thiểu: <strong>${minW} mm</strong>.<br>
+                3. Kết luận: Lấy giá trị lớn hơn để đảm bảo an toàn.<br>
+                <div class="result-highlight">CHIỀU RỘNG YÊU CẦU: ${final} mm</div>
             `;
         }
 
         function calculateThermal() {
-            const T = parseFloat(document.getElementById('temp').value);
-            if(!T) { alert("Vui lòng nhập nhiệt độ!"); return; }
-
-            let status = "";
-            let color = "";
-            let action = "";
-
-            if (T > 70) {
-                status = "MỨC NGUY HIỂM (ĐỎ)"; color = "red";
-                action = "HÀNH ĐỘNG NGAY LẬP TỨC: Tắt thiết bị, cách ly nguồn điện và thực hiện các biện pháp giảm nhiệt/sửa chữa.";
-            } else if (T > 60) {
-                status = "MỨC CẢNH BÁO (VÀNG)"; color = "orange";
-                action = "CẦN ĐIỀU TRA: Lập kế hoạch kiểm tra nguyên nhân quá nhiệt (lỏng đầu nối, quá tải mạch...) trong vòng 24-48h.";
-            } else {
-                status = "MỨC AN TOÀN (XANH)"; color = "green";
-                action = "Tiếp tục duy trì công tác bảo dưỡng định kỳ theo kế hoạch.";
-            }
-
-            document.getElementById('resultAreaTherm').style.display = "block";
-            document.getElementById('explTextTherm').innerHTML = `
-                <strong>Tiêu chuẩn đánh giá LABS:</strong><br>
-                - Ngưỡng điều tra: <span class="math">T > 60°C</span><br>
-                - Ngưỡng khắc phục ngay: <span class="math">T > 70°C</span><br><br>
-                <strong>Phân tích cho kết quả ${T}°C:</strong><br>
-                <div style="color:${color}; font-weight:bold; font-size:1.1rem;">${status}</div>
-                <div class="explanation" style="border-left-color:${color}">${action}</div>
+            const t = parseFloat(document.getElementById('tVal').value);
+            if(!t) return alert("Nhập nhiệt độ");
+            let msg = "";
+            let color = "var(--success)";
+            if(t > 70) { msg = "NGUY HIỂM: Khắc phục ngay lập tức!"; color = "var(--danger)"; }
+            else if(t > 60) { msg = "CẢNH BÁO: Cần lập kế hoạch điều tra."; color = "var(--warning)"; }
+            else { msg = "AN TOÀN: Tiếp tục theo dõi."; }
+            const res = document.getElementById('resAreaTherm');
+            res.style.display = "block";
+            res.innerHTML = `
+                <strong>Dẫn giải tiêu chuẩn:</strong><br>
+                - Dưới 60°C: Bình thường.<br>
+                - Từ 60°C - 70°C: Ngưỡng điều tra rủi ro.<br>
+                - Trên 70°C: Ngưỡng dừng máy khẩn cấp.<br>
+                <div class="result-highlight" style="color:${color}; border-color:${color}">${msg}</div>
             `;
+        }
+
+        function updateCapDẫnGiải() {
+            const p = document.getElementById('capPriority').value;
+            const res = document.getElementById('resAreaCap');
+            if(p == "1") res.innerHTML = "<strong>Dẫn giải quy định LABS:</strong><br>Mức độ Ưu tiên 1 yêu cầu khắc phục trong vòng <strong>2-3 ngày</strong>.";
+            if(p == "2") res.innerHTML = "<strong>Dẫn giải quy định LABS:</strong><br>Mức độ Ưu tiên 2 (Điện): Khắc phục trong <strong>2 tuần</strong>. (Cháy/Kết cấu): <strong>6 tuần</strong>.";
+            if(p == "3") res.innerHTML = "<strong>Dẫn giải quy định LABS:</strong><br>Mức độ Ưu tiên 3: Khắc phục trong <strong>4 tuần</strong> (Điện) hoặc <strong>6 tháng</strong> (Dài hạn).";
         }
     </script>
 </body>
