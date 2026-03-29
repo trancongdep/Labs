@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABS-Web v1.4 | Thực hành chi tiết</title>
+    <title>LABS-Web v1.5 | Hệ thống Kiểm tra TSKT</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -12,6 +12,8 @@
             --bg: #f8f9fa;
             --white: #ffffff;
             --success: #27ae60;
+            --danger: #e74c3c;
+            --info: #3498db;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
@@ -40,20 +42,23 @@
         .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
 
         main.content { flex: 1; padding: 20px; overflow-y: auto; }
-        .container { max-width: 800px; margin: 0 auto; background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .container { max-width: 850px; margin: 0 auto; background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
 
-        /* FORM KỸ THUẬT */
+        /* FORM */
         .step-box { background: #fdfdfd; border: 1px solid #eee; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         h4 { margin-bottom: 15px; color: var(--secondary); border-left: 4px solid var(--primary); padding-left: 10px; }
         label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #555; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
         .btn-action { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
         
-        /* DẪN GIẢI */
-        .explanation { background: #fffcf0; border-left: 5px solid #f1c40f; padding: 20px; margin-top: 20px; line-height: 1.6; display: none; }
-        .formula { font-family: "Courier New", Courier, monospace; background: #eee; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
+        /* FEEDBACK UI */
+        .feedback { padding: 15px; border-radius: 8px; margin-top: 20px; display: none; line-height: 1.6; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .std-ref { background: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 0.9rem; }
         
-        /* MEDIA QUERIES */
+        .formula { font-family: monospace; font-weight: bold; background: #eee; padding: 2px 4px; }
+
         @media (max-width: 992px) {
             nav.sidebar { position: absolute; left: -100%; height: 100%; }
             nav.sidebar.open { left: 0; }
@@ -68,7 +73,7 @@
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header"><h3>LABS-WEB <span style="font-size:0.6rem; vertical-align:middle;">v1.4</span></h3></div>
+        <div class="sidebar-header"><h3>LABS-WEB v1.5</h3></div>
         <ul class="sidebar-menu">
             <li onclick="loadPage('home')" class="active" id="m-home"><i class="fa-solid fa-home"></i> <span>Trang chủ</span></li>
             <li onclick="loadPage('load')" id="m-load"><i class="fa-solid fa-weight-scale"></i> <span>Bài 1: Tải trọng sàn</span></li>
@@ -81,15 +86,14 @@
     <div class="wrapper">
         <header>
             <div class="menu-toggle" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></div>
-            <div style="font-weight: bold; color: var(--secondary);">HỆ THỐNG THỰC HÀNH LABS</div>
-            <div><i class="fa-solid fa-user-graduate"></i> Học viên</div>
+            <div style="font-weight: bold; color: var(--secondary);">HỆ THỐNG KIỂM TRA TSKT CHUẨN</div>
+            <div id="user-role"><i class="fa-solid fa-user-check"></i> Chế độ: Thực hành</div>
         </header>
 
         <main class="content">
             <div class="container" id="main-view">
-                <h2>Hệ thống Thực hành Kỹ thuật LABS</h2>
-                <p style="margin-top:10px;">Chào mừng các học viên. Đây là môi trường mô phỏng các bài toán thực tế tại nhà máy theo tiêu chuẩn LABS.</p>
-                <p>Vui lòng chọn bài tập từ menu bên trái để bắt đầu tính toán.</p>
+                <h2>Bắt đầu bài học</h2>
+                <p>Hệ thống sẽ đối chiếu thông số bạn nhập với tiêu chuẩn LABS để chấm điểm.</p>
             </div>
         </main>
     </div>
@@ -102,175 +106,155 @@
 
         const pages = {
             'load': `
-                <h3>Bài 1: Phân tích Tải trọng Sàn thực tế</h3>
+                <h3>Bài 1: Tải trọng sàn</h3>
                 <div class="step-box">
-                    <h4>Bước 1: Nhập dữ liệu khảo sát</h4>
                     <label>Loại vật liệu khảo sát:</label>
-                    <input type="text" id="matType" placeholder="Ví dụ: Vải Denim cuộn">
-                    
-                    <label>Trọng lượng riêng vật liệu (kN/m³):</label>
-                    <input type="number" id="rhoVal" step="0.01" placeholder="Học viên tra bảng LABS (ví dụ: 3.5)">
-                    
-                    <label>Chiều cao xếp chồng thực tế (mét):</label>
-                    <input type="number" id="hVal" step="0.1" placeholder="Nhập số đo thực tế">
-                    
-                    <button class="btn-action" onclick="runEx1()">XUẤT DẪN GIẢI CHI TIẾT</button>
+                    <select id="matSelect">
+                        <option value="3.5">Vải chưa xử lý / Cuộn vải</option>
+                        <option value="2.0">Thành phẩm đóng gói</option>
+                        <option value="1.25">Giấy carton / Thùng rỗng</option>
+                        <option value="10.0">Nước (Bồn Gazi)</option>
+                    </select>
+                    <label>Nhập Trọng lượng riêng ρ (kN/m³):</label>
+                    <input type="number" id="hv_rho" placeholder="Bạn tra cứu được bao nhiêu?">
+                    <label>Nhập Chiều cao h (mét):</label>
+                    <input type="number" id="hv_h" placeholder="Nhập số đo thực tế">
+                    <button class="btn-action" onclick="checkEx1()">KIỂM TRA ĐÚNG/SAI</button>
                 </div>
-                <div id="resEx1" class="explanation"></div>
+                <div id="fbEx1" class="feedback"></div>
             `,
             'occupancy': `
-                <h3>Bài 2: Tính toán Sức chứa Người tối đa</h3>
+                <h3>Bài 2: Sức chứa người</h3>
                 <div class="step-box">
-                    <h4>Bước 1: Thông số mặt bằng</h4>
-                    <label>Diện tích khu vực khảo sát (m²):</label>
-                    <input type="number" id="areaVal" placeholder="Nhập diện tích thông thủy">
-                    
-                    <label>Mật độ người cư ngụ (m²/người):</label>
-                    <input type="number" id="densityVal" step="0.1" placeholder="Tra mục 6.4.2 LABS (ví dụ: 10 hoặc 30)">
-                    
-                    <button class="btn-action" onclick="runEx2()">KIỂM TRA SỨC CHỨA</button>
+                    <label>Khu vực khảo sát:</label>
+                    <select id="occType">
+                        <option value="10">Xưởng sản xuất may mặc</option>
+                        <option value="30">Kho hàng hóa</option>
+                        <option value="0.65">Phòng họp (không ghế cố định)</option>
+                    </select>
+                    <label>Nhập diện tích A (m²):</label>
+                    <input type="number" id="hv_area" placeholder="Nhập diện tích">
+                    <label>Nhập mật độ f (m²/người):</label>
+                    <input type="number" id="hv_f" placeholder="Tra mục 6.4.2 LABS">
+                    <button class="btn-action" onclick="checkEx2()">KIỂM TRA ĐÚNG/SAI</button>
                 </div>
-                <div id="resEx2" class="explanation"></div>
+                <div id="fbEx2" class="feedback"></div>
             `,
             'escape': `
-                <h3>Bài 3: Kiểm định Năng lực Thoát nạn</h3>
+                <h3>Bài 3: Kích thước thoát nạn</h3>
                 <div class="step-box">
-                    <h4>Bước 1: Thông số thoát nạn</h4>
-                    <label>Chọn loại cấu phần thoát nạn:</label>
-                    <select id="escType">
-                        <option value="Cửa/Hành lang">Cửa hoặc Hành lang</option>
-                        <option value="Cầu thang">Cầu thang</option>
+                    <label>Cấu phần thoát nạn:</label>
+                    <select id="escSelect">
+                        <option value="5">Cửa / Hành lang</option>
+                        <option value="7.6">Cầu thang</option>
                     </select>
-                    
-                    <label>Hệ số chiều rộng cơ bản (mm/người):</label>
-                    <input type="number" id="coeffVal" step="0.1" placeholder="Tra bảng 6.5 (ví dụ: 5.0 hoặc 7.6)">
-                    
-                    <label>Tổng số người thực tế cần thoát nạn:</label>
-                    <input type="number" id="pplVal" placeholder="Số người cư ngụ tại sàn">
-                    
-                    <button class="btn-action" onclick="runEx3()">PHÂN TÍCH KÍCH THƯỚC</button>
+                    <label>Nhập số người P:</label>
+                    <input type="number" id="hv_p" placeholder="Số người cư ngụ">
+                    <label>Nhập hệ số chiều rộng k (mm/người):</label>
+                    <input type="number" id="hv_k" placeholder="Tra bảng 6.5">
+                    <button class="btn-action" onclick="checkEx3()">KIỂM TRA ĐÚNG/SAI</button>
                 </div>
-                <div id="resEx3" class="explanation"></div>
+                <div id="fbEx3" class="feedback"></div>
             `,
             'cap': `
-                <h3>Bài 4: Kiểm tra Hiện trường & Lập CAP</h3>
+                <h3>Bài 4: Kiểm tra & CAP</h3>
                 <div class="step-box">
-                    <h4>Bước 1: Ghi nhận vi phạm</h4>
-                    <label>Chụp hình/Tải ảnh lỗi vi phạm:</label>
-                    <input type="file" accept="image/*" id="imgUpload">
-                    
-                    <label>Phân loại mức độ lỗi:</label>
-                    <select id="priority">
-                        <option value="1">Mức độ 1: Nghiêm trọng (Hành động ngay)</option>
-                        <option value="2">Mức độ 2: Trung bình</option>
-                        <option value="3">Mức độ 3: Thấp / Dài hạn</option>
+                    <label>Loại lỗi phát hiện:</label>
+                    <select id="prioSelect">
+                        <option value="1">Ưu tiên 1 (Nghiêm trọng)</option>
+                        <option value="2">Ưu tiên 2 (Trung bình)</option>
+                        <option value="3">Ưu tiên 3 (Thấp)</option>
                     </select>
-
                     <label>Thời gian khắc phục nhỏ nhất (ngày):</label>
-                    <input type="number" id="tMin" placeholder="Ví dụ: 1">
-                    
+                    <input type="number" id="hv_tmin">
                     <label>Thời gian khắc phục lớn nhất (ngày):</label>
-                    <input type="number" id="tMax" placeholder="Ví dụ: 3">
-                    
-                    <button class="btn-action" style="background:var(--success);" onclick="runEx4()">LẬP PHIẾU CAP</button>
+                    <input type="number" id="hv_tmax">
+                    <button class="btn-action" onclick="checkEx4()">KIỂM TRA ĐÚNG/SAI</button>
                 </div>
-                <div id="resEx4" class="explanation"></div>
+                <div id="fbEx4" class="feedback"></div>
             `
         };
 
         function loadPage(key) {
             document.getElementById('main-view').innerHTML = pages[key];
-            const menus = document.querySelectorAll('.sidebar-menu li');
-            menus.forEach(m => m.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu li').forEach(m => m.classList.remove('active'));
             document.getElementById('m-' + key).classList.add('active');
             if(window.innerWidth <= 992) toggleMenu();
         }
 
-        // --- XỬ LÝ BÀI 1 ---
-        function runEx1() {
-            const mat = document.getElementById('matType').value;
-            const rho = parseFloat(document.getElementById('rhoVal').value);
-            const h = parseFloat(document.getElementById('hVal').value);
-            if(!mat || !rho || !h) return alert("Vui lòng nhập đủ các thông số!");
+        // --- HÀM KIỂM TRA THÔNG MINH ---
 
-            const res = (rho * h).toFixed(2);
-            const resArea = document.getElementById('resEx1');
-            resArea.style.display = "block";
-            resArea.innerHTML = `
-                <strong>DẪN GIẢI KỸ THUẬT:</strong><br>
-                1. Vật liệu: <b>${mat}</b><br>
-                2. Trọng lượng riêng (<span class="formula">ρ</span>) học viên xác định: <b>${rho} kN/m³</b><br>
-                3. Chiều cao khảo sát (<span class="formula">h</span>): <b>${h} m</b><br>
-                4. Công thức tính tải trọng sàn (<span class="formula">w</span>): 
-                <div style="text-align:center; margin:10px 0; font-size:1.2rem;">w = ρ × h</div>
-                5. Kết quả tính toán: ${rho} × ${h} = <b>${res} kN/m²</b><br><br>
-                <div style="color:var(--primary); font-weight:bold;">=> Học viên cần đối chiếu ${res} kN/m² với giới hạn cho phép trên biểu đồ tải trọng tại vị trí khảo sát.</div>
-            `;
+        function checkEx1() {
+            const stdRho = parseFloat(document.getElementById('matSelect').value);
+            const hvRho = parseFloat(document.getElementById('hv_rho').value);
+            const h = parseFloat(document.getElementById('hv_h').value);
+            const fb = document.getElementById('fbEx1');
+            fb.style.display = "block";
+
+            if (hvRho === stdRho) {
+                fb.className = "feedback correct";
+                const w = (stdRho * h).toFixed(2);
+                fb.innerHTML = `<b>CHÍNH XÁC!</b> Bạn đã tra đúng TSKT trọng lượng riêng là ${stdRho} kN/m³.<br>Kết quả tải trọng sàn: <span class="formula">w = ${stdRho} x ${h} = ${w} kN/m²</span>`;
+            } else {
+                fb.className = "feedback wrong";
+                fb.innerHTML = `<b>SAI RỒI!</b> Trọng lượng riêng bạn nhập (${hvRho}) không khớp với tiêu chuẩn LABS cho loại vật liệu này.<br><div class="std-ref">TSKT yêu cầu: ρ = ${stdRho} kN/m³</div>`;
+            }
         }
 
-        // --- XỬ LÝ BÀI 2 ---
-        function runEx2() {
-            const A = parseFloat(document.getElementById('areaVal').value);
-            const d = parseFloat(document.getElementById('densityVal').value);
-            if(!A || !d) return alert("Vui lòng nhập đủ diện tích và mật độ!");
+        function checkEx2() {
+            const stdF = parseFloat(document.getElementById('occType').value);
+            const hvF = parseFloat(document.getElementById('hv_f').value);
+            const A = parseFloat(document.getElementById('hv_area').value);
+            const fb = document.getElementById('fbEx2');
+            fb.style.display = "block";
 
-            const n = Math.floor(A / d);
-            const resArea = document.getElementById('resEx2');
-            resArea.style.display = "block";
-            resArea.innerHTML = `
-                <strong>DẪN GIẢI KỸ THUẬT:</strong><br>
-                1. Diện tích khảo sát (<span class="formula">A</span>): <b>${A} m²</b><br>
-                2. Mật độ người quy định (<span class="formula">f</span>): <b>${d} m²/người</b><br>
-                3. Công thức tính sức chứa (<span class="formula">N</span>): 
-                <div style="text-align:center; margin:10px 0; font-size:1.2rem;">N = A / f</div>
-                4. Tính toán thực tế: ${A} / ${d} = ${A/d}<br>
-                5. Kết luận: Làm tròn xuống vì con người là đơn vị nguyên thể.<br><br>
-                <div style="color:var(--success); font-weight:bold; font-size:1.2rem;">SỨC CHỨA TỐI ĐA: ${n} NGƯỜI</div>
-            `;
+            if (hvF === stdF) {
+                fb.className = "feedback correct";
+                const N = Math.floor(A / stdF);
+                fb.innerHTML = `<b>CHÍNH XÁC!</b> Mật độ ${stdF} m²/người là con số chuẩn LABS.<br>Sức chứa: <span class="formula">N = ${A} / ${stdF} = ${N} người</span>`;
+            } else {
+                fb.className = "feedback wrong";
+                fb.innerHTML = `<b>CHƯA ĐÚNG!</b> Mật độ người bạn nhập chưa chính xác.<br><div class="std-ref">TSKT yêu cầu theo mục 6.4.2: f = ${stdF} m²/người</div>`;
+            }
         }
 
-        // --- XỬ LÝ BÀI 3 ---
-        function runEx3() {
-            const type = document.getElementById('escType').value;
-            const c = parseFloat(document.getElementById('coeffVal').value);
-            const p = parseFloat(document.getElementById('pplVal').value);
-            if(!c || !p) return alert("Nhập đủ hệ số và số người!");
+        function checkEx3() {
+            const stdK = parseFloat(document.getElementById('escSelect').value);
+            const hvK = parseFloat(document.getElementById('hv_k').value);
+            const P = parseFloat(document.getElementById('hv_p').value);
+            const fb = document.getElementById('fbEx3');
+            fb.style.display = "block";
 
-            const wCalc = (c * p);
-            const minStd = (type === "Cầu thang") ? 915 : 810;
-            const final = Math.max(wCalc, minStd);
-
-            const resArea = document.getElementById('resEx3');
-            resArea.style.display = "block";
-            resArea.innerHTML = `
-                <strong>DẪN GIẢI KỸ THUẬT:</strong><br>
-                1. Loại lối thoát: <b>${type}</b><br>
-                2. Hệ số (<span class="formula">k</span>): <b>${c} mm/người</b> | Số người (<span class="formula">P</span>): <b>${p}</b><br>
-                3. Chiều rộng tính toán theo công suất: ${c} × ${p} = <b>${wCalc} mm</b><br>
-                4. Chiều rộng tối thiểu theo LABS cho ${type}: <b>${minStd} mm</b><br>
-                5. Quy tắc chọn: <span class="formula">W = Max(W_{calc}, W_{min})</span><br><br>
-                <div style="color:var(--primary); font-weight:bold; font-size:1.2rem;">CHIỀU RỘNG YÊU CẦU: ${final} mm</div>
-            `;
+            if (hvK === stdK) {
+                fb.className = "feedback correct";
+                const calcW = P * stdK;
+                const minW = (stdK === 7.6) ? 915 : 810;
+                fb.innerHTML = `<b>CHÍNH XÁC!</b> Hệ số ${stdK} mm/người là chuẩn.<br>Chiều rộng tính toán: ${calcW}mm. Chiều rộng tối thiểu LABS: ${minW}mm.<br>Kết quả: <span class="formula">Max(${calcW}, ${minW}) = ${Math.max(calcW, minW)} mm</span>`;
+            } else {
+                fb.className = "feedback wrong";
+                fb.innerHTML = `<b>SAI HỆ SỐ!</b> Bạn cần tra lại bảng 6.5 để tìm hệ số thoát nạn đúng.<br><div class="std-ref">TSKT yêu cầu: k = ${stdK} mm/người</div>`;
+            }
         }
 
-        // --- XỬ LÝ BÀI 4 ---
-        function runEx4() {
-            const p = document.getElementById('priority').value;
-            const t1 = document.getElementById('tMin').value;
-            const t2 = document.getElementById('tMax').value;
-            if(!t1 || !t2) return alert("Nhập thời hạn khắc phục!");
+        function checkEx4() {
+            const prio = document.getElementById('prioSelect').value;
+            const tMin = parseInt(document.getElementById('hv_tmin').value);
+            const tMax = parseInt(document.getElementById('hv_tmax').value);
+            const fb = document.getElementById('fbEx4');
+            fb.style.display = "block";
 
-            const resArea = document.getElementById('resEx4');
-            resArea.style.display = "block";
-            resArea.innerHTML = `
-                <div style="border:1px solid #ccc; padding:15px; background:white;">
-                    <h4 style="border-left-color:var(--success)">PHIẾU HÀNH ĐỘNG KHẮC PHỤC (CAP)</h4>
-                    <p>Mức độ ưu tiên: <b>Ưu tiên ${p}</b></p>
-                    <p>Thời hạn xử lý: <b>Từ ${t1} đến ${t2} ngày</b></p>
-                    <hr style="margin:10px 0;">
-                    <p style="font-size:0.8rem; color:#666;">Dẫn giải: Theo tiêu chuẩn LABS, lỗi ưu tiên ${p} phải được ghi nhận vào hệ thống và theo dõi cho đến khi hình ảnh khắc phục được phê duyệt.</p>
-                </div>
-            `;
+            let stdMin, stdMax, note;
+            if(prio === "1") { stdMin = 2; stdMax = 3; note = "Lỗi nghiêm trọng cần xử lý ngay."; }
+            else if(prio === "2") { stdMin = 14; stdMax = 42; note = "Thời hạn từ 2 đến 6 tuần tùy loại lỗi."; }
+            else { stdMin = 28; stdMax = 180; note = "Thời hạn dài hạn cho bảo trì."; }
+
+            if (tMin >= stdMin && tMax <= stdMax) {
+                fb.className = "feedback correct";
+                fb.innerHTML = `<b>ĐÚNG QUY ĐỊNH!</b> Thời gian bạn nhập nằm trong khung cho phép của LABS.<br><i>Ghi chú: ${note}</i>`;
+            } else {
+                fb.className = "feedback wrong";
+                fb.innerHTML = `<b>SAI THỜI HẠN!</b> Khung thời gian khắc phục cho Ưu tiên ${prio} không đúng quy định LABS.<br><div class="std-ref">TSKT chuẩn: Từ ${stdMin} đến ${stdMax} ngày.</div>`;
+            }
         }
     </script>
 </body>
